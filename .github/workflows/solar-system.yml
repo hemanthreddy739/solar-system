@@ -151,7 +151,7 @@ jobs:
         with:
           context: .
           push: false
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:$SHORT_SHA
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{env.SHORT_SHA}}
 
       - name: Docker Image Testing
         run: |
@@ -161,7 +161,7 @@ jobs:
               -e MONGO_URI=${{env.MONGO_URI}} \
               -e MONGO_USERNAME=${{env.MONGO_USERNAME}}\
               -e MONGO_PASSWORD=${{env.MONGO_PASSWORD}} \
-              ${{ vars.DOCKERHUB_USERNAME }}/solar-system:$SHORT_SHA
+              ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{env.SHORT_SHA}}
           
           
           echo Testing Image URL using wget 
@@ -173,7 +173,7 @@ jobs:
           context: .
           push: true
           tags: |
-              ${{ vars.DOCKERHUB_USERNAME }}/solar-system:$SHORT_SHA
+              ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{env.SHORT_SHA}}
            
 
     # dev-deploy:
