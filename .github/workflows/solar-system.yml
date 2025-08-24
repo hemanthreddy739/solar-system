@@ -20,15 +20,14 @@ jobs:
       image: node:${{ matrix.nodejs_version }}
     
     services:
-      mongo-db:
-        image: siddharth67/mongo-db:non-prod
-        ports:
-          - 27017:27017
-
+        mongo-db:
+          image: siddharth67/mongo-db:non-prod
+          options: 
+              --name mongo
     env:
-      MONGO_URI: 'mongodb://localhost:27017/superData'
-      MONGO_USERNAME: non-prod-user
-      MONGO_PASSWORD: non-prod-password
+        MONGO_URI: 'mongodb://mongo:27017/superData'
+        MONGO_USERNAME: non-prod-user
+        MONGO_PASSWORD: non-prod-password
 
     strategy:
       matrix:
