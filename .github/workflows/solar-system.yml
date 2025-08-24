@@ -13,9 +13,7 @@ on:
 #     MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
 
 
-env:
-  # Get a short SHA (first 7 characters)
-  SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+  
 
 jobs:
   unit-testing:
@@ -116,7 +114,8 @@ jobs:
 
       - name: Sync artifacts to S3
         run: |
-          aws s3 sync ./downloaded-artifacts/ s3://${{ env.S3_BUCKET }}/artifact-${{env.SHORT_SHA}}
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          aws s3 sync ./downloaded-artifacts/ s3://${{ env.S3_BUCKET }}/artifact-$SHORT_SHA
 
   docker:
       name: Containerization
@@ -133,6 +132,12 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v5
 
+      - name: Set SHORT_SHA environment variable
+        id: set-sha
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV  
+
       - name: Dockerhub Login
         uses: docker/login-action@v3
         with:
@@ -146,7 +151,7 @@ jobs:
         with:
           context: .
           push: false
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ env.SHORT_SHA }}
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:$SHORT_SHA
 
       - name: Docker Image Testing
         run: |
@@ -156,7 +161,7 @@ jobs:
               -e MONGO_URI=${{env.MONGO_URI}} \
               -e MONGO_USERNAME=${{env.MONGO_USERNAME}}\
               -e MONGO_PASSWORD=${{env.MONGO_PASSWORD}} \
-              ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ env.SHORT_SHA }}
+              ${{ vars.DOCKERHUB_USERNAME }}/solar-system:$SHORT_SHA
           
           
           echo Testing Image URL using wget 
@@ -168,7 +173,7 @@ jobs:
           context: .
           push: true
           tags: |
-              ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ env.SHORT_SHA }}
+              ${{ vars.DOCKERHUB_USERNAME }}/solar-system:$SHORT_SHA
            
 
     # dev-deploy:
