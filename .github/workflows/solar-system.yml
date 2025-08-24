@@ -118,8 +118,10 @@ jobs:
 
       - name: Sync artifacts to S3
         run: |
-          aws s3 sync ./downloaded-artifacts/ s3://${{ env.S3_BUCKET }}/artifacts/
-          
+          # Get a short SHA (first 7 characters)
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          aws s3 sync ./downloaded-artifacts/ s3://${{ env.S3_BUCKET }}/artifact-${SHORT_SHA}
+
     # docker:
     #     name: Containerization
     #     needs: [unit-testing, code-coverage]
