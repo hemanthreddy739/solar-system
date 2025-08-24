@@ -54,8 +54,14 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: "Mocha-Test-Result-node:${{matrix.nodejs_version}}"
+          name: "Mocha-Test-Result-node-${{matrix.nodejs_version}}"
           path: test-results.xml
+
+      - name: listing containers
+        run: |
+            docker ps
+            echo "-----------------"
+            docker images
 
   code-coverage:
       name: Code Coverage
