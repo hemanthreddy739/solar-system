@@ -10,7 +10,12 @@ on:
 # env:
 #     MONGO_URI: 'mongodb+srv://supercluster.d83jj.mongodb.net/superData'
 #     MONGO_USERNAME: ${{ vars.MONGO_USERNAME }}
-#     MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}     
+#     MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+
+
+env:
+  # Get a short SHA (first 7 characters)
+  SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
 
 jobs:
   unit-testing:
@@ -63,10 +68,8 @@ jobs:
       services:
         mongo-db:
           image: siddharth67/mongo-db:non-prod
-          options: 
-              --name mongo
       env:
-          MONGO_URI: 'mongodb://mongo:27017/superData'
+          MONGO_URI: 'mongodb://mongo-db:27017/superData'
           MONGO_USERNAME: non-prod-user
           MONGO_PASSWORD: non-prod-password
       runs-on: ubuntu-latest
@@ -111,71 +114,62 @@ jobs:
         with:
           path: ./downloaded-artifacts/
 
-      - name: List downloaded artifacts (for debugging)
-        run: |
-          echo "Listing contents of downloaded-artifacts directory:"
-          ls -R ./downloaded-artifacts/
-
       - name: Sync artifacts to S3
         run: |
-          # Get a short SHA (first 7 characters)
-          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          aws s3 sync ./downloaded-artifacts/ s3://${{ env.S3_BUCKET }}/artifact-${SHORT_SHA}
+          aws s3 sync ./downloaded-artifacts/ s3://${{ env.S3_BUCKET }}/artifact-${{env.SHORT_SHA}}
 
-    # docker:
-    #     name: Containerization
-    #     needs: [unit-testing, code-coverage]
-    #     permissions: 
-    #        packages: write
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #     - name: Checkout Repo
-    #       uses: actions/checkout@v4
+  docker:
+      name: Containerization
+      needs: [unit-testing, code-coverage]
+      services:
+        mongo-db:
+          image: siddharth67/mongo-db:non-prod
+      env:
+          MONGO_URI: 'mongodb://mongo-db:27017/superData'
+          MONGO_USERNAME: non-prod-user
+          MONGO_PASSWORD: non-prod-password
+      runs-on: ubuntu-latest
+      steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v5
 
-    #     - name: Dockerhub Login
-    #       uses: docker/login-action@v2.2.0
-    #       with:
-    #         username: ${{ vars.DOCKERHUB_USERNAME }}
-    #         password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Dockerhub Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-    #     - name: GHCR Login
-    #       uses: docker/login-action@v2.2.0
-    #       with:
-    #         registry: ghcr.io
-    #         username: ${{ github.repository_owner }}
-    #         password: ${{ secrets.GITHUB_TOKEN }}
+  
 
-    #     - name: Docker Build For Testing
-    #       uses: docker/build-push-action@v4
-    #       with:
-    #         context: .
-    #         push: false
-    #         tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
+      - name: Docker Build For Testing
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ env.SHORT_SHA }}
 
-    #     - name: Docker Image Testing
-    #       run: |
-    #         docker images
-    #         docker run --name solar-system-app -d  \
-    #             -p 3000:3000 \
-    #             -e MONGO_URI=$MONGO_URI \
-    #             -e MONGO_USERNAME=$MONGO_USERNAME \
-    #             -e MONGO_PASSWORD=$MONGO_PASSWORD \
-    #             ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
-            
-    #         export IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' solar-system-app)
-    #         echo $IP
-            
-    #         echo Testing Image URL using wget 
-    #         wget -q -O - 127.0.0.1:3000/live | grep live
+      - name: Docker Image Testing
+        run: |
+          docker images
+          docker run --name solar-system-app -d  \
+              -p 3000:3000 \
+              -e MONGO_URI=${{env.MONGO_URI}} \
+              -e MONGO_USERNAME=${{env.MONGO_USERNAME}}\
+              -e MONGO_PASSWORD=${{env.MONGO_PASSWORD}} \
+              ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ env.SHORT_SHA }}
+          
+          
+          echo Testing Image URL using wget 
+          wget -q -O - 127.0.0.1:3000/live | grep live
 
-    #     - name: Container Registry Push
-    #       uses: docker/build-push-action@v4
-    #       with:
-    #         context: .
-    #         push: true
-    #         tags: |
-    #             ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
-    #          #  ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }}
+      - name: Container Registry Push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+              ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ env.SHORT_SHA }}
+           
 
     # dev-deploy:
     #   if: contains(github.ref, 'feature/')
