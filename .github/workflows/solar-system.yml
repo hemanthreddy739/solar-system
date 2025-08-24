@@ -13,80 +13,85 @@ on:
 #     MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}     
 
 jobs:
-    unit-testing:
-        name: Unit Testing
-        services:
-          mongo-db:
-            image: siddharth67/mongo-db:non-prod
-            ports:
-              - 27017:27017
-        env:
-            MONGO_URI: 'mongodb://localhost:27017/superData'
-            MONGO_USERNAME: non-prod-user
-            MONGO_PASSWORD: non-prod-password
-        strategy:
-            matrix:
-                nodejs_version: [18, 20]
-                operating_system: [ubuntu-latest]
-        runs-on: ${{ matrix.operating_system }}
-        steps:
-        - name: Checkout Repository
-          uses: actions/checkout@v5
+  unit-testing:
+    name: Unit Testing
+    # Use the container for the job's execution environment.
+    container:
+      image: node:${{ matrix.nodejs_version }}
+    
+    services:
+      mongo-db:
+        image: siddharth67/mongo-db:non-prod
+        ports:
+          - 27017:27017
 
-        - name: Setup NodeJS Version - ${{ matrix.nodejs_version }}
-          uses: actions/setup-node@v4
-          with:
-            node-version: ${{ matrix.nodejs_version }}
+    env:
+      MONGO_URI: 'mongodb://localhost:27017/superData'
+      MONGO_USERNAME: non-prod-user
+      MONGO_PASSWORD: non-prod-password
 
-        - name: Composite Action - Cache & Install NPM Packages
-          uses: ./.github/custom-actions/npm-action
-          with:
-            path-of-folder: node_modules 
+    strategy:
+      matrix:
+        nodejs_version: [18, 20]
+        operating_system: [ubuntu-latest]
+    
+    runs-on: ${{matrix.operating_system}} 
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
 
-        - name: Unit Testing
-          id: nodejs-unit-testing-step
-          run: npm test
+      # The `setup-node` step is no longer needed since the container
+      # already provides the correct Node.js version.
+      
+      - name: Composite Action - Cache & Install NPM Packages
+        uses: ./.github/custom-actions/npm-action
+        with:
+          path-of-folder: node_modules 
 
-        - name: Archive Test Result
-          if:  always()
-          uses: actions/upload-artifact@v4
-          with:
-            name: "Mocha-Test-Result-${{runner.name}}"
-            path: test-results.xml
+      - name: Unit Testing
+        id: nodejs-unit-testing-step
+        run: npm test
 
-    code-coverage:
-        name: Code Coverage
-        container: 
-            image: node:18
-        services:
-          mongo-db:
-            image: siddharth67/mongo-db:non-prod
-            options: 
-                --name mongo
-        env:
-            MONGO_URI: 'mongodb://mongo:27017/superData'
-            MONGO_USERNAME: non-prod-user
-            MONGO_PASSWORD: non-prod-password
-        runs-on: ubuntu-latest
-        steps:
-        - name: Checkout Repository
-          uses: actions/checkout@v4
+      - name: Archive Test Result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "Mocha-Test-Result-node:${{matrix.nodejs_version}}"
+          path: test-results.xml
 
-        - name: Composite Action - Cache & Install NPM Packages
-          uses: ./.github/custom-actions/npm-action
-          with:
-            path-of-folder: node_modules
+  code-coverage:
+      name: Code Coverage
+      container: 
+          image: node:18
+      services:
+        mongo-db:
+          image: siddharth67/mongo-db:non-prod
+          options: 
+              --name mongo
+      env:
+          MONGO_URI: 'mongodb://mongo:27017/superData'
+          MONGO_USERNAME: non-prod-user
+          MONGO_PASSWORD: non-prod-password
+      runs-on: ubuntu-latest
+      steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-        - name: Check Code Coverage
-          continue-on-error: true
-          run: npm run coverage
+      - name: Composite Action - Cache & Install NPM Packages
+        uses: ./.github/custom-actions/npm-action
+        with:
+          path-of-folder: node_modules
 
-        - name: Archive Test Result
-          uses: actions/upload-artifact@v4
-          with:
-            name: Code-Coverage-Result
-            path: coverage
-            retention-days: 5
+      - name: Check Code Coverage
+        continue-on-error: true
+        run: npm run coverage
+
+      - name: Archive Test Result
+        uses: actions/upload-artifact@v4
+        with:
+          name: Code-Coverage-Result
+          path: coverage
+          retention-days: 5
 
     # reports-s3:
     #   needs: [code-coverage, unit-testing]
