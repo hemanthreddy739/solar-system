@@ -22,10 +22,8 @@ jobs:
     services:
         mongo-db:
           image: siddharth67/mongo-db:non-prod
-          options: 
-              --name mongo
     env:
-        MONGO_URI: 'mongodb://mongo:27017/superData'
+        MONGO_URI: 'mongodb://mongo-db:27017/superData'
         MONGO_USERNAME: non-prod-user
         MONGO_PASSWORD: non-prod-password
 
@@ -33,7 +31,7 @@ jobs:
       matrix:
         nodejs_version: [18, 20]
     
-    runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -56,12 +54,7 @@ jobs:
         with:
           name: "Mocha-Test-Result-node-${{matrix.nodejs_version}}"
           path: test-results.xml
-
-      - name: listing containers
-        run: |
-            docker ps
-            echo "-----------------"
-            docker images
+    runs-on: ubuntu-latest
 
   code-coverage:
       name: Code Coverage
