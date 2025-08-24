@@ -90,42 +90,36 @@ jobs:
           path: coverage
           retention-days: 5
 
-    # reports-s3:
-    #   needs: [code-coverage, unit-testing]
-    #   name: AWS S3 - Upload Reports
-    #   runs-on: ubuntu-latest
-    #   continue-on-error: true
-    #   steps:
-    #     - name: Download Mocha Test Artifact
-    #       uses: actions/download-artifact@v3
-    #       with:
-    #         name: Mocha-Test-Result
+  upload-to-s3:
+    name: Upload Artifacts to S3
+    runs-on: ubuntu-latest
+    needs: [unit-testing, code-coverage]
+    env:
+      S3_BUCKET: ${{ vars.S3_BUCKET_NAME }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+    
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-    #     - name: Download Code Coverage Artifact
-    #       uses: actions/download-artifact@v3
-    #       with:
-    #         name: Code-Coverage-Result
+      - name: Download all artifacts from the workflow run
+        uses: actions/download-artifact@v4
+        with:
+          path: ./downloaded-artifacts/
 
-    #     - name: Merge Test Files
-    #       run: |
-    #         ls -ltr
-    #         mkdir reports-${{ github.sha }}
-    #         mv cobertura-coverage.xml reports-${{ github.sha }}/
-    #         mv test-results.xml reports-${{ github.sha }}/
-    #         ls -ltr reports-${{ github.sha }}/
+      - name: List downloaded artifacts (for debugging)
+        run: |
+          echo "Listing contents of downloaded-artifacts directory:"
+          ls -R ./downloaded-artifacts/
 
-    #     - name: Upload to AWS S3
-    #       uses: jakejarvis/s3-sync-action@master
-    #       with:
-    #         args:  --follow-symlinks --delete
-    #       env:
-    #         AWS_S3_BUCKET: solar-system-reports-bucket
-    #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #         AWS_REGION: 'us-east-1'                       
-    #         SOURCE_DIR: 'reports-${{ github.sha }}'
-    #         DEST_DIR: 'reports-${{ github.sha }}'
-
+      - name: Sync artifacts to S3
+        run: |
+          aws s3 sync ./downloaded-artifacts/ s3://${{ env.S3_BUCKET }}/artifacts/
+          
     # docker:
     #     name: Containerization
     #     needs: [unit-testing, code-coverage]
