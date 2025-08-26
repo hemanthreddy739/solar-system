@@ -3,9 +3,6 @@ name: Deployment - Reusable Workflow
 on:
     workflow_call: 
       inputs:
-        mongodb-uri:
-          required: true
-          type: string
         kubectl-version:
             description: Provide the required Kubectl version
             default: v1.26.0
@@ -60,20 +57,23 @@ jobs:
                 aws-secret-access-key: ${{ secrets.aws-secret-key }}
                 aws-region: ${{vars.AWS_REGION}}  # Replace with your region if different
 
-            - name: Update kubeconfig for EKS cluster
-              run: |
-                aws eks update-kubeconfig --region ap-south-1 --name education-eks-AFMUKzzj
+            - name: Set Kubeconfig file
+              uses: azure/k8s-set-context@v4
+              with:
+                method: kubeconfig
+                kubeconfig: ${{ secrets.k8s-kubeconfig }}
+
 
             - name: Verify kubectl version and get nodes
               run: |
-                kubectl version --client
+                kubectl version
                 echo ---------------------------------------------------
                 kubectl get nodes
                 
             
             - name: Save Nginx Ingress Controller IP as a GITHUB Environment Variable
               run: |
-                echo "INGRESS_IP=$(kubectl -n ingress-nginx get services ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}")" >> $GITHUB_ENV
+                echo "INGRESS_IP=$(kubectl -n ingress-nginx get services ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")" >> $GITHUB_ENV
             
             - name: Replace Token in Manifest files
               uses: cschleiden/replace-tokens@v1
@@ -94,7 +94,7 @@ jobs:
             - name: Create MongoDB Secret
               run: |
                 kubectl -n ${{ vars.NAMESPACE }} create secret generic mongo-db-creds \
-                --from-literal=MONGO_URI=${{ inputs.mongodb-uri }} \
+                --from-literal=MONGO_URI=${{ vars.MONGO_URI }} \
                 --from-literal=MONGO_USERNAME=${{ vars.MONGO_USERNAME }} \
                 --from-literal=MONGO_PASSWORD=${{ secrets.mongodb-password }} \
                 --save-config \
