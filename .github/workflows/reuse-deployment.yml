@@ -93,7 +93,7 @@ jobs:
 
             - name: Create MongoDB Secret
               run: |
-               kubectl apply -f ${{ inputs.k8s-manifest-dir }}/secrets.yml
+               kubectl apply -f ${{ inputs.k8s-manifest-dir }}secrets.yml
               
             - name: Deploy to Dev Env
               run: |

@@ -182,7 +182,7 @@ jobs:
       aws-secret-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
     with:
       deploy-environment: development
-      k8s-manifest-dir: kubernetes/development
+      k8s-manifest-dir: kubernetes/development/
       
 
 
