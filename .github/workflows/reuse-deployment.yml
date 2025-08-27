@@ -37,9 +37,9 @@ jobs:
     reuse-deploy:
         environment: 
             name: ${{ inputs.deploy-environment }}
-            url: https://${{ steps.set-ingress-host-address.outputs.APP_INGRESS_HOST }}
+            url: https://${{ steps.set-ingress-host-address.outputs.APP_INGRESS_HOSTNAME }}
         outputs:
-            APP_INGRESS_URL: ${{ steps.set-ingress-host-address.outputs.APP_INGRESS_HOST }}
+            APP_INGRESS_URL: ${{ steps.set-ingress-host-address.outputs.APP_INGRESS_HOSTNAME }}
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Repo
@@ -70,11 +70,7 @@ jobs:
                 echo ---------------------------------------------------
                 kubectl get nodes
                 
-            
-            - name: Save Nginx Ingress Controller IP as a GITHUB Environment Variable
-              run: |
-                echo "INGRESS_IP=$(kubectl -n ingress-nginx get services ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")" >> $GITHUB_ENV
-            
+        
             - name: Replace Token in Manifest files
               uses: cschleiden/replace-tokens@v1
               with:
@@ -85,7 +81,8 @@ jobs:
                 NAMESPACE: ${{ vars.NAMESPACE }}
                 REPLICAS: ${{ vars.REPLICAS }}
                 IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
-                INGRESS_IP:  ${{ env.INGRESS_IP }}
+                INGRESS_CONTROLLER_HOSTNAME:  ${{ vars.INGRESS_CONTROLLER_HOSTNAME }}
+                INCRESS_CLASS_NAME: ${{vars.INCRESS_CLASS_NAME}}
 
             - name: Check files
               run: |
@@ -102,4 +99,4 @@ jobs:
             - name: Set App Ingress Host URL
               id: set-ingress-host-address
               run: |
-                echo "APP_INGRESS_HOST=$(kubectl -n ${{ vars.NAMESPACE }} get ingress -o jsonpath="{.items[0].spec.tls[0].hosts[0]}")" >> "$GITHUB_OUTPUT"
+                echo "APP_INGRESS_HOSTNAME=$(kubectl -n ${{ vars.NAMESPACE }} get ingress -o jsonpath="{.items[0].spec.tls[0].hosts[0]}" )" >> "$GITHUB_OUTPUT"
