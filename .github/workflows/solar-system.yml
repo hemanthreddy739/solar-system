@@ -207,6 +207,8 @@ jobs:
     secrets: 
       k8s-kubeconfig: ${{ secrets.KUBECONFIG }}
       # need to make mongo-db credentials variablalised
+      aws-access-key: ${{secrets.AWS_ACCESS_KEY_ID}}
+      aws-secret-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
     with:
       deploy-environment: production
       k8s-manifest-dir: kubernetes/production/
