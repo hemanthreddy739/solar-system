@@ -24,8 +24,12 @@ on:
       secrets:
         k8s-kubeconfig:
           required: true
-        # mongodb-password:
-        #   required: true
+        mongo-uri:
+          required: true
+        mongo-db-username:
+          required: true
+        mongo-db-password:
+          required: true
         aws-access-key:
           required: true
         aws-secret-key:
@@ -82,6 +86,9 @@ jobs:
                 IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
                 INGRESS_CONTROLLER_HOSTNAME:  ${{ vars.INGRESS_CONTROLLER_HOSTNAME }}
                 INCRESS_CLASS_NAME: ${{vars.INCRESS_CLASS_NAME}}
+                MONGO_URI: ${{secrets.mongo-uri}}
+                MONGO_USERNAME: ${{secrets.mongo-db-username}}
+                MONGO_PASSWORD: ${{secrets.mongo-db-password}}
 
             - name: Check files
               run: |
