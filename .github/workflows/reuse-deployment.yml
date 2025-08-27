@@ -44,7 +44,6 @@ jobs:
         steps:
             - name: Checkout Repo
               uses: actions/checkout@v4
-            
             - name: Install kubectl CLI
               uses: azure/setup-kubectl@v3
               with:
