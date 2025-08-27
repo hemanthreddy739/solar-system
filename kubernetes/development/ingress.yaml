@@ -2,13 +2,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
-    kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
   name: solar-system
   namespace: _{_NAMESPACE_}_
 spec:
+    ingressClassName: _{_INCRESS_CLASS_NAME_}_
     rules:
-    - host: solar-system-_{_NAMESPACE_}_._{_INGRESS_IP_}_.nip.io
+    - host: _{_INGRESS_CONTROLLER_HOSTNAME_}_
       http:
         paths:
         - backend:
@@ -20,5 +20,5 @@ spec:
           pathType: Prefix
     tls:
     - hosts:
-      - solar-system-_{_NAMESPACE_}_._{_INGRESS_IP_}_.nip.io
+      - _{_INGRESS_CONTROLLER_HOSTNAME_}_
       secretName: ingress-local-tls
