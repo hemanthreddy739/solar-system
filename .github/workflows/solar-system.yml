@@ -178,11 +178,16 @@ jobs:
     secrets: 
       k8s-kubeconfig: ${{ secrets.KUBECONFIG }}
       # need to make mongo-db credentials variablalised
+      mongo-uri: ${{secrets.MONGO_URI}}
+      mongo-db-username: ${{secrets.MONGO_USERNAME}}
+      mongo-db-password: ${{secrets.MONGO_PASSWORD}}
+
       aws-access-key: ${{secrets.AWS_ACCESS_KEY_ID}}
       aws-secret-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+
     with:
       deploy-environment: development
-      k8s-manifest-dir: kubernetes/development/
+      k8s-manifest-dir: kubernetes/
       
 
 
@@ -212,11 +217,15 @@ jobs:
     secrets: 
       k8s-kubeconfig: ${{ secrets.KUBECONFIG }}
       # need to make mongo-db credentials variablalised
+      mongo-uri: ${{secrets.MONGO_URI}}
+      mongo-db-username: ${{secrets.MONGO_USERNAME}}
+      mongo-db-password: ${{secrets.MONGO_PASSWORD}}
+      
       aws-access-key: ${{secrets.AWS_ACCESS_KEY_ID}}
       aws-secret-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
     with:
       deploy-environment: production
-      k8s-manifest-dir: kubernetes/production/
+      k8s-manifest-dir: kubernetes/
       
   prod-integration-testing:
       name: Prod Integration Testing
