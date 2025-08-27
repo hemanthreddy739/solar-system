@@ -208,7 +208,7 @@ jobs:
       k8s-kubeconfig: ${{ secrets.KUBECONFIG }}
       # need to make mongo-db credentials variablalised
     with:
-      environment: production
+      deploy-environment: production
       k8s-manifest-dir: kubernetes/production/
       
   prod-integration-testing:
