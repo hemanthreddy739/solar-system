@@ -24,8 +24,8 @@ on:
       secrets:
         k8s-kubeconfig:
           required: true
-        mongodb-password:
-          required: true
+        # mongodb-password:
+        #   required: true
         aws-access-key:
           required: true
         aws-secret-key:
