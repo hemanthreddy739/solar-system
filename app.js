@@ -86,6 +86,13 @@ app.get('/galaxy',   function(req, res) {
     });
 })
 
+app.get('/space-exploration',   function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    res.send({
+        "status": "India is doing great in space exploration."
+    });
+})
+
 app.listen(3000, () => {
     console.log("Server successfully running on port - " +3000);
 })
