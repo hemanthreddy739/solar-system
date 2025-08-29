@@ -220,7 +220,7 @@ jobs:
       mongo-uri: ${{secrets.MONGO_URI}}
       mongo-db-username: ${{secrets.MONGO_USERNAME}}
       mongo-db-password: ${{secrets.MONGO_PASSWORD}}
-      
+
       aws-access-key: ${{secrets.AWS_ACCESS_KEY_ID}}
       aws-secret-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
     with:
@@ -245,21 +245,4 @@ jobs:
             echo $URL
             echo "--------------------------------------------"
             curl https://$URL/live -s -k | jq -r .status | grep -i live
-
-    # slack-notification:
-    #   if: always()
-    #   name: Slack Notification
-    #   needs: [dev-integration-testing, prod-integration-testing]
-    #   continue-on-error: true
-    #   runs-on: ubuntu-latest
-    #   steps:
-    #   - uses: actions/checkout@v4
-    #   - name: Slack Notification
-    #     uses: rtCamp/action-slack-notify@v2
-    #     env:
-    #       SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-    #       SLACK_CHANNEL: github-actions-channel-2
-    #       SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
-    #     #  SLACK_ICON: https://gitlab.com/sidd-harth/solar-system/-/raw/main/images/saturn.png
-    #       SLACK_MESSAGE: ':hammer_and_wrench: Triggered by ${{github.actor}}'
-    #       SLACK_TITLE: Information
+   
