@@ -79,7 +79,7 @@ app.get('/ready',   function(req, res) {
     });
 })
 
-app.get('/galaxy',   function(req, res) {
+app.get('/milky-way-galaxy',   function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.send({
         "status": "the solar system is a small component within the vast Milky Way galaxy"
