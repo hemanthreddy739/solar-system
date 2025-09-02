@@ -18,7 +18,7 @@ jobs:
         mongo-db:
           image: hemanthreddy739/solar-system-mongodb:dev
     env:
-        MONGO_URI: 'mongodb://mongo-db:27017/solar-system-db'
+        MONGO_URI: 'mongodb://mongo-db:27017/solar-system-db?authSource=admin'
         MONGO_USERNAME: dev-user
         MONGO_PASSWORD: demo@123
 
@@ -56,7 +56,7 @@ jobs:
         mongo-db:
           image: hemanthreddy739/solar-system-mongodb:dev
       env:
-          MONGO_URI: 'mongodb://mongo-db:27017/solar-system-db'
+          MONGO_URI: 'mongodb://mongo-db:27017/solar-system-db?authSource=admin'
           MONGO_USERNAME: dev-user
           MONGO_PASSWORD: demo@123
       runs-on: ubuntu-latest
@@ -112,7 +112,7 @@ jobs:
         mongo-db:
           image: hemanthreddy739/solar-system-mongodb:dev
       env:
-          MONGO_URI: 'mongodb://mongo-db:27017/solar-system-db'
+          MONGO_URI: 'mongodb://mongo-db:27017/solar-system-db?authSource=admin'
           MONGO_USERNAME: dev-user
           MONGO_PASSWORD: demo@123
       runs-on: ubuntu-latest
@@ -196,6 +196,7 @@ jobs:
             URL: ${{ needs.dev-deploy.outputs.application-url }}
           run: |
             echo $URL
+            sleep 60
             echo "--------------------------------------------"
             curl https://$URL/live -s -k | jq -r .status | grep -i live
 
@@ -232,6 +233,7 @@ jobs:
             URL: ${{ needs.prod-deploy.outputs.application-url }}
           run: |
             echo $URL
+            sleep 60
             echo "--------------------------------------------"
             curl https://$URL/live -s -k | jq -r .status | grep -i live
    
