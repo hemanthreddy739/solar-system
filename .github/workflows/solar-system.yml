@@ -7,14 +7,6 @@ on:
       - main
       - 'feature/*'
 
-# env:
-#     MONGO_URI: 'mongodb+srv://supercluster.d83jj.mongodb.net/superData'
-#     MONGO_USERNAME: ${{ vars.MONGO_USERNAME }}
-#     MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
-
-
-  
-
 jobs:
   unit-testing:
     name: Unit Testing
@@ -24,11 +16,11 @@ jobs:
     
     services:
         mongo-db:
-          image: siddharth67/mongo-db:non-prod
+          image: hemanthreddy739/solar-system-mongodb:dev
     env:
-        MONGO_URI: 'mongodb://mongo-db:27017/superData'
-        MONGO_USERNAME: non-prod-user
-        MONGO_PASSWORD: non-prod-password
+        MONGO_URI: 'mongodb://mongo-db:27017/solar-system-db'
+        MONGO_USERNAME: dev-user
+        MONGO_PASSWORD: demo@123
 
     strategy:
       matrix:
@@ -38,9 +30,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
-
-      # The `setup-node` step is no longer needed since the container
-      # already provides the correct Node.js version.
       
       - name: Composite Action - Cache & Install NPM Packages
         uses: ./.github/custom-actions/npm-action
@@ -65,11 +54,11 @@ jobs:
           image: node:18
       services:
         mongo-db:
-          image: siddharth67/mongo-db:non-prod
+          image: hemanthreddy739/solar-system-mongodb:dev
       env:
-          MONGO_URI: 'mongodb://mongo-db:27017/superData'
-          MONGO_USERNAME: non-prod-user
-          MONGO_PASSWORD: non-prod-password
+          MONGO_URI: 'mongodb://mongo-db:27017/solar-system-db'
+          MONGO_USERNAME: dev-user
+          MONGO_PASSWORD: demo@123
       runs-on: ubuntu-latest
       steps:
       - name: Checkout Repository
@@ -121,11 +110,11 @@ jobs:
       needs: [unit-testing, code-coverage]
       services:
         mongo-db:
-          image: siddharth67/mongo-db:non-prod
+          image: hemanthreddy739/solar-system-mongodb:dev
       env:
-          MONGO_URI: 'mongodb://mongo-db:27017/superData'
-          MONGO_USERNAME: non-prod-user
-          MONGO_PASSWORD: non-prod-password
+          MONGO_URI: 'mongodb://mongo-db:27017/solar-system-db'
+          MONGO_USERNAME: dev-user
+          MONGO_PASSWORD: demo@123
       runs-on: ubuntu-latest
       steps:
       - name: Checkout Repo
