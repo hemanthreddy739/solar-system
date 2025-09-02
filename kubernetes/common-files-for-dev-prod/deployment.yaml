@@ -18,6 +18,11 @@ spec:
     spec:
       containers:
       - image: _{_IMAGE_}_
+        resources:
+          requests:
+            cpu: 100m
+          limits:
+            cpu: 500m
         imagePullPolicy: Always
         name: solar-system
         ports:

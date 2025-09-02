@@ -10,7 +10,7 @@ on:
             type: string
         k8s-manifest-dir:
             description: Directory containing Kubernetes manifests files
-            default: kubernetes/
+            default: kubernetes
             required: true
             type: string 
         deploy-environment:
@@ -79,7 +79,7 @@ jobs:
               with:
                 tokenPrefix: '_{_'
                 tokenSuffix: '_}_'
-                files: '["${{ inputs.k8s-manifest-dir }}*.yaml"]'
+                files: '["${{ inputs.k8s-manifest-dir }}/common-files-for-dev-prod/*.yaml"]'
               env:
                 NAMESPACE: ${{ vars.NAMESPACE }}
                 REPLICAS: ${{ vars.REPLICAS }}
@@ -92,15 +92,20 @@ jobs:
 
             - name: Check files
               run: |
-                cat ${{ inputs.k8s-manifest-dir }}*.yaml
+                cat ${{ inputs.k8s-manifest-dir }}/common-files-for-dev-prod/*.yaml
 
             - name: Create MongoDB Secret
               run: |
-               kubectl apply -f ${{ inputs.k8s-manifest-dir }}secrets.yaml
+               kubectl apply -f ${{ inputs.k8s-manifest-dir }}/common-files-for-dev-prod/secrets.yaml
               
-            - name: Deploy to Dev Env
+            - name: Deploy to ${{ inputs.deploy-environment }} Env
               run: |
-                kubectl apply -f ${{ inputs.k8s-manifest-dir }}
+                kubectl apply -f ${{ inputs.k8s-manifest-dir }}/common-files-for-dev-prod/
+                
+            - name: Deploy HPA to Production
+              if: ${{ inputs.deploy-environment == 'production' }}
+              run: |
+                    kubectl apply -f ${{ inputs.k8s-manifest-dir }}/production/hpa.yaml
 
             - name: Set App Ingress Host URL
               id: set-ingress-host-address

@@ -46,7 +46,3 @@ If the installation was successful, you should be able to run the following comm
 
 ## Access Application on Browser
     http://localhost:3000/
-
-# modified some things
-# fixed some more issue.
-# again try
