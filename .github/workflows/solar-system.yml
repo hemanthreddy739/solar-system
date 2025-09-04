@@ -4,9 +4,7 @@ on:
   push:
     branches:
       - main
-  pull_request: 
-    branches:
-      - dev
+      - 'feature/*'    
 
 jobs:
   unit-testing:
@@ -162,7 +160,7 @@ jobs:
            
 
   dev-deploy:
-    if: github.event_name == 'pull_request' && github.base_ref == 'dev'
+    if: contains(github.ref, 'feature/')
     needs: docker
     uses: ./.github/workflows/reuse-deployment.yml
     secrets: 
@@ -182,7 +180,7 @@ jobs:
 
 
   dev-integration-testing:
-      if: github.event_name == 'pull_request' && github.base_ref == 'dev'
+      if: contains(github.ref, 'feature/')
       name: Dev Integration Testing
       needs: dev-deploy
       runs-on: ubuntu-latest
