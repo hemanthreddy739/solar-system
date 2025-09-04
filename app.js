@@ -89,7 +89,7 @@ app.get('/milky-way-galaxy',   function(req, res) {
 app.get('/space-exploration',   function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.send({
-        "status": "India is doing great in space exploration."
+        "status": "space exploration is nothing but the art of exploring the space"
     });
 })
 
