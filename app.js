@@ -93,6 +93,12 @@ app.get('/space-exploration',   function(req, res) {
     });
 })
 
+app.get('/aspire-demo',   function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    res.send({
+        "status": "devops-case studey demo"
+    });
+})
  
 
 app.listen(3000, () => {
