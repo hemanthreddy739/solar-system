@@ -1,11 +1,12 @@
 name: Solar System Workflow
 
 on: 
-  workflow_dispatch:
   push:
     branches:
       - main
-      - 'dev'
+  pull_request: 
+    branches:
+      - dev
 
 jobs:
   unit-testing:
@@ -161,7 +162,7 @@ jobs:
            
 
   dev-deploy:
-    if: github.ref == 'refs/heads/dev'
+    if: github.event_name == 'pull_request' && github.base_ref == 'dev'
     needs: docker
     uses: ./.github/workflows/reuse-deployment.yml
     secrets: 
@@ -181,7 +182,7 @@ jobs:
 
 
   dev-integration-testing:
-      if: github.ref == 'refs/heads/dev'
+      if: github.event_name == 'pull_request' && github.base_ref == 'dev'
       name: Dev Integration Testing
       needs: dev-deploy
       runs-on: ubuntu-latest
