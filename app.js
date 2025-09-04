@@ -96,7 +96,7 @@ app.get('/space-exploration',   function(req, res) {
 app.get('/spacex',   function(req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.send({
-        "status": "spacex is the first to introduced the reusable rocket concept."
+        "status": "spacex is the first to introduced the reusable rocket concept!"
     });
 })
 
