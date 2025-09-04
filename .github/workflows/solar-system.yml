@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - 'feature/*'
+      - 'dev'
 
 jobs:
   unit-testing:
@@ -161,7 +161,7 @@ jobs:
            
 
   dev-deploy:
-    if: contains(github.ref, 'feature/')
+    if: github.ref == 'refs/heads/dev'
     needs: docker
     uses: ./.github/workflows/reuse-deployment.yml
     secrets: 
@@ -181,7 +181,7 @@ jobs:
 
 
   dev-integration-testing:
-      if: contains(github.ref, 'feature/')
+      if: github.ref == 'refs/heads/dev'
       name: Dev Integration Testing
       needs: dev-deploy
       runs-on: ubuntu-latest
