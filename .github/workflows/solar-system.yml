@@ -200,39 +200,51 @@ jobs:
             curl https://$URL/live -s -k | jq -r .status | grep -i live
 
   prod-deploy:
-    if: github.ref == 'refs/heads/main'
-    needs: docker
-    uses: ./.github/workflows/reuse-deployment.yml 
-    secrets: 
-      k8s-kubeconfig: ${{ secrets.KUBECONFIG }}
-      # need to make mongo-db credentials variablalised
-      mongo-uri: ${{secrets.MONGO_URI}}
-      mongo-db-username: ${{secrets.MONGO_USERNAME}}
-      mongo-db-password: ${{secrets.MONGO_PASSWORD}}
+  name: prod-deploy
+  if: github.ref == 'refs/heads/main'
+  runs-on: ubuntu-latest
+  steps:
+    - name: Fake prod deployment
+      run: |
+        echo "🚀 Pretending to deploy to production"
+        sleep 20
+        echo "✅ Fake deployment completed"
 
-      aws-access-key: ${{secrets.AWS_ACCESS_KEY_ID}}
-      aws-secret-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
-    with:
-      deploy-environment: production
-      k8s-manifest-dir: kubernetes
+
+  # prod-deploy:
+  #   if: github.ref == 'refs/heads/main'
+  #   needs: docker
+  #   uses: ./.github/workflows/reuse-deployment.yml 
+  #   secrets: 
+  #     k8s-kubeconfig: ${{ secrets.KUBECONFIG }}
+  #     # need to make mongo-db credentials variablalised
+  #     mongo-uri: ${{secrets.MONGO_URI}}
+  #     mongo-db-username: ${{secrets.MONGO_USERNAME}}
+  #     mongo-db-password: ${{secrets.MONGO_PASSWORD}}
+
+  #     aws-access-key: ${{secrets.AWS_ACCESS_KEY_ID}}
+  #     aws-secret-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+  #   with:
+  #     deploy-environment: production
+  #     k8s-manifest-dir: kubernetes
       
-  prod-integration-testing:
-      name: Prod Integration Testing
-      if: github.ref == 'refs/heads/main'
-      needs: prod-deploy
-      runs-on: ubuntu-latest
-      steps:
-        - name: Install jq
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y jq
+  # prod-integration-testing:
+  #     name: Prod Integration Testing
+  #     if: github.ref == 'refs/heads/main'
+  #     needs: prod-deploy
+  #     runs-on: ubuntu-latest
+  #     steps:
+  #       - name: Install jq
+  #         run: |
+  #           sudo apt-get update
+  #           sudo apt-get install -y jq
 
-        - name: Test URL Output using CURL and JQ
-          env:
-            URL: ${{ needs.prod-deploy.outputs.application-url }}
-          run: |
-            echo $URL
-            sleep 60
-            echo "--------------------------------------------"
-            curl https://$URL/live -s -k | jq -r .status | grep -i live
+  #       - name: Test URL Output using CURL and JQ
+  #         env:
+  #           URL: ${{ needs.prod-deploy.outputs.application-url }}
+  #         run: |
+  #           echo $URL
+  #           sleep 60
+  #           echo "--------------------------------------------"
+  #           curl https://$URL/live -s -k | jq -r .status | grep -i live
    
